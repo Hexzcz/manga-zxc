@@ -4,9 +4,11 @@ __pycache__/
 images/
 output/
 out/
+pages/output/
 test
 config.yaml
-main.py
 cli/
 model/old
 assets/
+out2.txt
+output.log

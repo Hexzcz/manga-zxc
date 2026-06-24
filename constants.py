@@ -1,4 +1,18 @@
-CONFIG_FILE = "config.yaml"
+import os
+import yaml
+from pathlib import Path
+from dotenv import load_dotenv
+
+BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(BASE_DIR / ".env")
+
+CONFIG_FILE = BASE_DIR / "config.yaml"
+
+try:
+    with open(CONFIG_FILE, 'r') as f:
+        yaml_config = yaml.safe_load(f)
+except Exception:
+    yaml_config = {}
 
 DEFAULT_CONFIG = {
     "api_group": {
@@ -324,3 +338,21 @@ Handle Nuance & Wordplay:
     that captures the spirit of the joke. If impossible, prioritize a translation that sounds natural and still 
     makes sense in the context.
 """
+
+# ----------------- PIPELINE.PY CONFIGURATION ALIASES -----------------
+# These were previously duplicated in backend/config/constants.py
+SPEECH_BUBBLE_MODEL_FILE_PATH = SPEECH_BUBBLE_MODEL_PATH
+TEXT_CLUSTER_MODEL_FILE_PATH = TEXT_CLUSTER_MODEL_PATH
+MIGAN_MODEL_FILE_PATH = MIGAN_MODEL_PATH
+
+API_KEY = os.getenv("API_KEY", "")
+API_MODEL = "deepseek-chat"
+try:
+    _provider = yaml_config.get("api_group", {}).get("selected", "deepseek")
+    API_MODEL = yaml_config.get("api_group", {}).get(_provider, {}).get("model", "deepseek-chat")
+    if _provider == "gemini":
+        API_KEY = os.getenv("GEMINI_API_KEY", API_KEY)
+    elif _provider == "deepseek":
+        API_KEY = os.getenv("DEEPSEEK_API_KEY", API_KEY)
+except Exception:
+    pass
